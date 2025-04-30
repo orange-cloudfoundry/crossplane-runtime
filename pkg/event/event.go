@@ -118,7 +118,7 @@ func NewNamespacedAPIRecorder(r record.EventRecorder) *NamespacedAPIRecorder {
 func (r *NamespacedAPIRecorder) Event(obj runtime.Object, e Event) {
 	m, err := meta.Accessor(obj)
 	// If we cannot determine if the object is namespace (i.e. err is not nil), don't do anything
-	if err == nil && (m.GetNamespace() != "" || m.GetNamespace() != "default") {
+	if err == nil && m.GetNamespace() != "" && m.GetNamespace() != "default" {
 		r.APIRecorder.Event(obj, e)
 	}
 }
