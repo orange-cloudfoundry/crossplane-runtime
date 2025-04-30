@@ -118,9 +118,20 @@ func NewNamespacedAPIRecorder(r record.EventRecorder) *NamespacedAPIRecorder {
 func (r *NamespacedAPIRecorder) Event(obj runtime.Object, e Event) {
 	m, err := meta.Accessor(obj)
 	// If we cannot determine if the object is namespace (i.e. err is not nil), don't do anything
-	if err == nil || m.GetNamespace() != "" {
+	if err == nil || m.GetNamespace() != "" || m.GetNamespace() != "default" {
 		r.APIRecorder.Event(obj, e)
 	}
+}
+
+// WithAnnotations returns a new *NamespacedAPIRecorder that includes the supplied
+// annotations with all recorded events.
+func (r *NamespacedAPIRecorder) WithAnnotations(keysAndValues ...string) Recorder {
+	nar := NewNamespacedAPIRecorder(r.kube)
+	for k, v := range r.annotations {
+		nar.annotations[k] = v
+	}
+	sliceMap(keysAndValues, nar.annotations)
+	return nar
 }
 
 func sliceMap(from []string, to map[string]string) {
